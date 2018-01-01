@@ -90,7 +90,7 @@ def closeSensel(frame):
     error = sensel.close(handle)
 
 if __name__ == "__main__":
-    global enter_pressed
+    #global enter_pressed
     handle = openSensel()
     if handle != None:
         (error, info) = sensel.getSensorInfo(handle)
