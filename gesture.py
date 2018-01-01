@@ -28,6 +28,13 @@ import sensel
 import binascii
 import threading
 
+import pygame
+
+
+# Window properties
+win_bg_color = (255,255,255);
+(winw, winh) = (300, 200);
+
 enter_pressed = False;
 
 start_locations = [None] * 20;
@@ -90,8 +97,17 @@ def closeSensel(frame):
     error = sensel.stopScanning(handle)
     error = sensel.close(handle)
 
+
+#####################
+# Main method.
+#####################
 if __name__ == "__main__":
     global enter_pressed
+    screen = pygame.display.set_mode((winw, winh))
+    pygame.display.set_caption('Best Tinder Ever')
+    screen.fill(win_bg_color)
+    pygame.display.flip()
+    running = True
     handle = openSensel()
     if handle != None:
         (error, info) = sensel.getSensorInfo(handle)
@@ -99,7 +115,10 @@ if __name__ == "__main__":
 
         t = threading.Thread(target=waitForEnter)
         t.start()
-        while(enter_pressed == False):
+        while(enter_pressed == False && running):
             scanFrames(frame, info)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
         closeSensel(frame)
     
