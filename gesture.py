@@ -73,8 +73,12 @@ def printFrame(frame, info):
             # print("Y POS", c.y_pos)
 
             im.putpixel((math.floor(c.x_pos), math.floor(c.y_pos)), (255, 255, 255))
+            im.putpixel((math.floor(c.x_pos)+1, math.floor(c.y_pos)), (255, 255, 255))
+            im.putpixel((math.floor(c.x_pos)-1, math.floor(c.y_pos)), (255, 255, 255))
+            im.putpixel((math.floor(c.x_pos), math.floor(c.y_pos)+1), (255, 255, 255))
+            im.putpixel((math.floor(c.x_pos), math.floor(c.y_pos)-1), (255, 255, 255))
             # print "State", c.state
-            
+
             if c.state == sensel.CONTACT_START:
                 sensel.setLEDBrightness(handle, c.id, 100)
             elif c.state == sensel.CONTACT_END:
