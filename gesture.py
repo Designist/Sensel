@@ -28,8 +28,11 @@ import sensel
 import binascii
 import threading
 from PIL import Image
+import math
 
 enter_pressed = False;
+
+im = Image.new('RGB', (225, 125));
 
 start_locations = [None] * 20;
 
@@ -66,21 +69,12 @@ def printFrame(frame, info):
         for n in range(frame.n_contacts):
             c = frame.contacts[n]
             # print "Contact ID: ", c.id
-            # print "X POS", c.x_pos
-            # print "Y POS", c.y_pos
+            # print("X POS", c.x_pos)
+            # print("Y POS", c.y_pos)
+
+            im.putpixel((math.floor(c.x_pos), math.floor(c.y_pos)), (255, 255, 255))
             # print "State", c.state
-
-            if (c.state == 1):
-                start_locations[c.id] = (c.x_pos, c.y_pos);
-
-            if (c.state == 3):
-                start = start_locations[c.id];
-                diff = (c.x_pos - start[0], c.y_pos - start[1]);
-                if (diff[0] > 30):
-                    print("You swiped right! It's a match.")
-                if (diff[0] < -30):
-                    print("You swiped left. Not this time :)")
-
+            
             if c.state == sensel.CONTACT_START:
                 sensel.setLEDBrightness(handle, c.id, 100)
             elif c.state == sensel.CONTACT_END:
@@ -103,4 +97,4 @@ if __name__ == "__main__":
         while(enter_pressed == False):
             scanFrames(frame, info)
         closeSensel(frame)
-    
+        im.save("image.jpg");
