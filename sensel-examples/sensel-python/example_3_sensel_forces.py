@@ -23,19 +23,16 @@
 ##########################################################################
 
 import sys
-sys.path.append('sensel-lib-wrappers/sensel-lib-python')
+sys.path.append('../../sensel-lib-wrappers/sensel-lib-python')
 import sensel
 import binascii
 import threading
 
 enter_pressed = False;
 
-start_locations = [None] * 20;
-
 def waitForEnter():
     global enter_pressed
     raw_input("Press Enter to exit...")
-    print "\n"
     enter_pressed = True
     return
 
@@ -47,7 +44,7 @@ def openSensel():
     return handle
 
 def initFrame():
-    error = sensel.setFrameContent(handle, sensel.FRAME_CONTENT_CONTACTS_MASK)
+    error = sensel.setFrameContent(handle, sensel.FRAME_CONTENT_PRESSURE_MASK)
     (error, frame) = sensel.allocateFrameData(handle)
     error = sensel.startScanning(handle)
     return frame
@@ -57,33 +54,13 @@ def scanFrames(frame, info):
     (error, num_frames) = sensel.getNumAvailableFrames(handle)
     for i in range(num_frames):
         error = sensel.getFrame(handle, frame)
-        printFrame(frame,info)
+        printFrame(frame, info)
 
 def printFrame(frame, info):
-    if frame.n_contacts > 0:
-        # print "\nNum Contacts: ", frame.n_contacts
-        for n in range(frame.n_contacts):
-            c = frame.contacts[n]
-            # print "Contact ID: ", c.id
-            # print "X POS", c.x_pos
-            # print "Y POS", c.y_pos
-            # print "State", c.state
-
-            if (c.state == 1):
-                start_locations[c.id] = (c.x_pos, c.y_pos);
-
-            if (c.state == 3):
-                start = start_locations[c.id];
-                diff = (c.x_pos - start[0], c.y_pos - start[1]);
-                if (diff[0] > 30):
-                    print "You swiped right! It's a match."
-                if (diff[0] < -30):
-                    print "You swiped left. Not this time :)"
-
-            if c.state == sensel.CONTACT_START:
-                sensel.setLEDBrightness(handle, c.id, 100)
-            elif c.state == sensel.CONTACT_END:
-                sensel.setLEDBrightness(handle, c.id, 0)
+    total_force = 0.0
+    for n in range(info.num_rows*info.num_cols):
+        total_force += frame.force_array[n]
+    print "Total Force: "+str(total_force)
 
 def closeSensel(frame):
     error = sensel.freeFrameData(handle, frame)
@@ -91,12 +68,11 @@ def closeSensel(frame):
     error = sensel.close(handle)
 
 if __name__ == "__main__":
-    global enter_pressed
     handle = openSensel()
     if handle != None:
         (error, info) = sensel.getSensorInfo(handle)
         frame = initFrame()
-
+        
         t = threading.Thread(target=waitForEnter)
         t.start()
         while(enter_pressed == False):
