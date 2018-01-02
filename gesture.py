@@ -106,7 +106,7 @@ if __name__ == "__main__":
         while(enter_pressed == False):
             scanFrames(frame, info)
         closeSensel(frame)
-        im.save("image.jpg");
+        im.save("image2.jpg");
         text = pytesseract.image_to_string(Image.open("image.jpg"))
         print("Text:")
         print(text);
