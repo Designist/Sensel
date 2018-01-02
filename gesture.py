@@ -28,11 +28,15 @@ import sensel
 import binascii
 import threading
 from PIL import Image
+from PIL import ImageDraw
 import math
+import pytesseract
 
 enter_pressed = False;
 
-im = Image.new('RGB', (225, 125));
+sf = 5; # size factor
+
+im = Image.new('RGB', (225*sf, 125*sf));
 
 start_locations = [None] * 20;
 
@@ -72,11 +76,12 @@ def printFrame(frame, info):
             # print("X POS", c.x_pos)
             # print("Y POS", c.y_pos)
 
-            im.putpixel((math.floor(c.x_pos), math.floor(c.y_pos)), (255, 255, 255))
-            im.putpixel((math.floor(c.x_pos)+1, math.floor(c.y_pos)), (255, 255, 255))
-            im.putpixel((math.floor(c.x_pos)-1, math.floor(c.y_pos)), (255, 255, 255))
-            im.putpixel((math.floor(c.x_pos), math.floor(c.y_pos)+1), (255, 255, 255))
-            im.putpixel((math.floor(c.x_pos), math.floor(c.y_pos)-1), (255, 255, 255))
+            x = c.x_pos*sf;
+            y = c.y_pos*sf;
+            r = 20;
+
+            draw = ImageDraw.Draw(im)
+            draw.ellipse((x-r, y-r, x+r, y+r), fill=(255,255,255,255))
             # print "State", c.state
 
             if c.state == sensel.CONTACT_START:
@@ -101,4 +106,8 @@ if __name__ == "__main__":
         while(enter_pressed == False):
             scanFrames(frame, info)
         closeSensel(frame)
-        im.save("image.jpg");
+        im.save("image2.jpg");
+        text = pytesseract.image_to_string(Image.open("image.jpg"))
+        print("Text:")
+        print(text);
+
